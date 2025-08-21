@@ -5,6 +5,7 @@ import com.example.ProductService.Exceptions.InvalidProductIdException;
 import com.example.ProductService.Models.Catogory;
 import com.example.ProductService.Models.Product;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -52,19 +53,19 @@ public abstract class FakeStoreProductService implements ProductService{
         return ConvertFakeStoreProductDTOtoProduct(fakeStoreProductDTO);
     }
 
-    public List<Product> GetAllProducts() {
-
-        // lots of changes are done the return type of fakestore is list
-        // we can not convert the datatype during run time
-       FakeStoreProductDTO [] fakeStoreProductDTOS = restTemplate.getForObject("https://fakestoreapi.com/products/", FakeStoreProductDTO[].class);
-
-       List<Product> products = new ArrayList<>();
-
-       for(FakeStoreProductDTO fakeStoreProductDTO : fakeStoreProductDTOS){
-           products.add(ConvertFakeStoreProductDTOtoProduct(fakeStoreProductDTO));
-       }
-      return products;
-    }
+//    public Page<Product> GetAllProducts() {
+//
+//        // lots of changes are done the return type of fakestore is list
+//        // we can not convert the datatype during run time
+//       FakeStoreProductDTO [] fakeStoreProductDTOS = restTemplate.getForObject("https://fakestoreapi.com/products/", FakeStoreProductDTO[].class);
+//
+//       Page<Product> products = new ArrayList<>();
+//
+//       for(FakeStoreProductDTO fakeStoreProductDTO : fakeStoreProductDTOS){
+//           products.add(ConvertFakeStoreProductDTOtoProduct(fakeStoreProductDTO));
+//       }
+//      return products;
+//    }
 
     public Product CreateProduct( Product product){
         return new Product();

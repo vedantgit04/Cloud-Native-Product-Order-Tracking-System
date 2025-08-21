@@ -6,6 +6,10 @@ import com.example.ProductService.Models.Product;
 import com.example.ProductService.Repo.CatogoryRepo;
 import com.example.ProductService.Repo.ProductRepo;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,24 +19,39 @@ import java.util.Optional;
 public   class  SelfProductService implements ProductService{
      private ProductRepo productRepo;
      private CatogoryRepo catogoryRepo;
-    SelfProductService(ProductRepo productRepo, CatogoryRepo catogoryRepo){
+     private RedisTemplate redisTemplate;
+    SelfProductService(ProductRepo productRepo, CatogoryRepo catogoryRepo, RedisTemplate redisTemplate){
         this.productRepo = productRepo;
         this.catogoryRepo = catogoryRepo;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
-    public Product GetProductById( long id) throws InvalidProductIdException{
-        Optional<Product> optionalProduct =  productRepo.findById(id);
+    public Product GetProductById( long id) throws InvalidProductIdException {
 
-        if(optionalProduct.isEmpty()){
-            throw  new InvalidProductIdException("invalid id");
+        // first check the product in the redis chache
+        Product product = (Product) redisTemplate.opsForHash().get("PRODUCTS", "PRODUCT_" + id);
+        if (product != null) {
+            // this is the case of cache hit
+            return product;
         }
-        return optionalProduct.get();
+        Optional<Product> optionalProduct = productRepo.findById(id);
+
+        if (optionalProduct.isEmpty()) {
+            throw new InvalidProductIdException("invalid id");
+        }
+        // this is the case of chache miss
+        Product product1 = optionalProduct.get();
+        redisTemplate.opsForHash().put("PRODUCTS", "PRODUCT_" + id, product1);
+        return product1;
     }
 
+    // we  are using  this service for pagination
      @Override
-    public List<Product> GetAllProducts(){
-        return productRepo.findAll();
+    public Page<Product> GetAllProducts(int pageNumber , int pageSize){
+
+//         Sort.by("price").descending().and(Sort.by(" title"));
+        return productRepo.findAll(PageRequest.of(pageNumber,pageSize,  Sort.by("price").descending()));
       }
 
 

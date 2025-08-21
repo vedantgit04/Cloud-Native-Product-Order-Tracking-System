@@ -2,6 +2,8 @@ package com.example.ProductService.Repo;
 
 import com.example.ProductService.Models.Product;
 import com.example.ProductService.Projections.ProductWithOnlyIdAndTitle;
+import org.hibernate.query.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -31,6 +33,11 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
       // first getting the Project Object and From catogory.id feching the Catogory object
       @Query(value = "select * from product where id = 2", nativeQuery = true)
       Product SQLquery();
+
+      // we are going to implement the pagination
+    @Override
+    org.springframework.data.domain.Page<Product> findAll(Pageable pageable);
+
 }
 
 /*

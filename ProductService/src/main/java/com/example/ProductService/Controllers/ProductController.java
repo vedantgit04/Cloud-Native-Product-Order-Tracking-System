@@ -8,9 +8,11 @@ import com.example.ProductService.Exceptions.InvalidProductIdException;
 import com.example.ProductService.Models.Product;
 import com.example.ProductService.Services.ProductService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.rmi.server.ExportException;
 import java.util.ArrayList;
@@ -22,10 +24,12 @@ public class ProductController {
 
     private ProductService productService;
     private AuthorazationCommons authorazationCommons;
+    private  RestTemplate restTemplate;
 
-    ProductController(@Qualifier("selfproductservice") ProductService productService, AuthorazationCommons authorazationCommons){
+    ProductController(@Qualifier("selfproductservice") ProductService productService, AuthorazationCommons authorazationCommons,RestTemplate restTemplate){
         this.productService = productService;
         this.authorazationCommons= authorazationCommons;
+        this.restTemplate = restTemplate;
     }
 
 
@@ -48,18 +52,24 @@ public class ProductController {
 //      } we can able to handel the exception in the controller layer but this is controller gets bulky for that we are using controller advise
         Product  product = productService.GetProductById(id);
         return new ResponseEntity<>(product, HttpStatusCode.valueOf(200));
+
+        // this code is for teting the service discovery work - weather the product service is making call and manageggin load
+//        ResponseEntity<String> responseEntity = restTemplate.getForEntity("http://UserService/user/getbyid/1",String.class
+//        );
+//        return responseEntity;
     }
 
     //localhost:8081/products
-    @GetMapping("/all/{token}")
-    public  ResponseEntity<List<Product>> GetAllProducts(@PathVariable  String token){
+   // @GetMapping("/all/{token}")
+    @GetMapping("/")
+    public  ResponseEntity<Page<Product>> GetAllProducts(@RequestParam("pageNumber") int pageNumber , @RequestParam("pageSize") int pageSize){
         // first we need tot validate the token
-        UserDto userDto = authorazationCommons.ValidateToken(token);
+//        UserDto userDto = authorazationCommons.ValidateToken(token);
 
-        if(userDto == null){
-            // token in invalid
-                return new ResponseEntity<>(HttpStatusCode.valueOf(401));
-        }
+//        if(userDto == null){
+//            // token in invalid
+//                return new ResponseEntity<>(HttpStatusCode.valueOf(401));
+//        }
 //        // this code is for authorization where we are checking the RBA - for admin
 //        boolean isAdmin  = false;
 //        for(Role role : userDto.getRoles()){
@@ -73,14 +83,18 @@ public class ProductController {
 //            return null;
 //        }
 
-       List<Product>products = productService.GetAllProducts();
+
+       Page<Product>products = productService.GetAllProducts(pageNumber,pageSize);
        return new ResponseEntity<>(products,HttpStatusCode.valueOf(200));
+
     }
 //
     @PostMapping
     public ResponseEntity<Product> CreateProduct(@RequestBody Product product){
          Product productr  = productService.CreateProduct(product);
          return new ResponseEntity<>(productr,HttpStatusCode.valueOf(200));
+
+
     }
 
     // partial update

@@ -4,6 +4,7 @@ package com.example.ProductService.Services;
 import com.example.ProductService.Exceptions.InvalidProductIdException;
 import com.example.ProductService.Models.Product;
 import com.example.ProductService.ProductServiceApplication;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -14,7 +15,7 @@ public interface ProductService {
 
     public Product GetProductById( long id) throws InvalidProductIdException;
 
-    public List<Product> GetAllProducts();
+    public Page<Product> GetAllProducts(int pageNumber , int pageSize);
 
     public  Product CreateProduct(Product product);
 
