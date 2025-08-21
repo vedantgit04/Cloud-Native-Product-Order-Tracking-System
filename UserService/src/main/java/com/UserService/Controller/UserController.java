@@ -59,5 +59,9 @@ public class UserController {
          return UserDto.from(user);
     }
 
+    @GetMapping("/getbyid/{id}")
+    public  ResponseEntity<String>getbyid(@PathVariable("id") Long id){
+        return new ResponseEntity<>("call by userservice",HttpStatusCode.valueOf(200));
+    }
 
 }
